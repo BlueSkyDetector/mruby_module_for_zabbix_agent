@@ -1,0 +1,49 @@
+- mruby_module for zabbix agent
+
+mrbuy embedded loadable module for zabbix agent.
+It adds "mruby.string[]" and "mruby.file[]" key.
+These keys evaluates ruby code.
+
+For example,
+"mruby.string[1234 * 4]" returns "4936.000000".
+"mruby.file[sample.rb]" with following file, it returns "hello world user 30"
+------------------- sample.rb ------------------------
+class Something
+  def call()
+    u = Userdata.new
+    return "hello world " + u.name + " " + u.age.to_s
+  end
+end
+
+def zbx_module_init()
+  u = Userdata.new
+  u.name = "user"
+  u.age = 30
+  return 'init world'
+end
+
+def zbx_module_run()
+  return Something.new.call()
+end
+
+def zbx_module_uninit()
+  return 'uninit world'
+end
+------------------------------------------------------
+
+- Compile
+gcc -I/path/to/zabbix-2.2.*/include/ -I/path/to/mruby-1.0.0/include/ mruby_module.c /path/to/mruby-1.0.0/build/host/lib/libmruby*.a -shared -fPIC -o mruby_module.so
+
+- Use
+------------------------------------------------------
+LoadModulePath=/path/to/mruby_module
+LoadModule=mruby_module.so
+------------------------------------------------------
+ruby file in "/path/to/mruby_module/mruby" will be used in "mruby.file[]" key.
+For example,
+"/path/to/mruby_module/mruby/sample.rb" will be executed if "mruby.file[sample.rb]" is monitored.
+
+ruby file should have zbx_module_init(), zbx_module_run(), zbx_module_uninit().
+zbx_module_init() is called when agent starts.
+zbx_module_run() is called when "mruby.file[filename]" is monitored.
+zbx_module_uninit() is called when agent shutdown.

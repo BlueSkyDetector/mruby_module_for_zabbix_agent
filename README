@@ -31,6 +31,10 @@ def zbx_module_uninit()
 end
 ------------------------------------------------------
 
+- Requirement
+mruby compiled with "-fPIC" and mrbgems "Userdata"
+Zabbix 2.2.*
+
 - Compile
 gcc -I/path/to/zabbix-2.2.*/include/ -I/path/to/mruby-1.0.0/include/ mruby_module.c /path/to/mruby-1.0.0/build/host/lib/libmruby*.a -shared -fPIC -o mruby_module.so
 

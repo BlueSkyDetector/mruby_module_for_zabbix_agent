@@ -1,7 +1,6 @@
 class Something
   def call()
     u = Userdata.new
-    u.age += 1
     return "hello world " + u.name + " " + u.age.to_s
   end
 end
